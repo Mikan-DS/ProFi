@@ -59,3 +59,5 @@ class GroupAdmin(admin.ModelAdmin):
     inlines = [StudentInline]
 
 admin.site.register(Group, GroupAdmin)
+admin.site.register(EventPlan)
+admin.site.register(EventActivity)
