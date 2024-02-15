@@ -74,7 +74,7 @@ class ContactData(models.Model):
         verbose_name_plural = "Контактные данные"
 
     def __str__(self):
-        return self.first_name + ' ' + self.last_name
+        return f"{self.last_name} {self.first_name} {self.middle_name}".strip()
 
 
 class Specialty(models.Model):
@@ -132,7 +132,7 @@ class Employee(models.Model):
         verbose_name_plural = "Сотрудники"
 
     def __str__(self):
-        return self.contact.first_name + ' ' + self.contact.last_name
+        return f"пр. {self.contact}"
 
 
 class SchoolResponsible(models.Model):
@@ -174,7 +174,7 @@ class Student(models.Model):
         verbose_name_plural = "Студенты"
 
     def __str__(self):
-        return self.contact.first_name + ' ' + self.contact.last_name
+        return f"студент {self.contact} ({self.group.name})"
 
 
 class Event(models.Model):
