@@ -1,0 +1,5 @@
+/ProOrientation/migrations/
+/**.sqlite3
+**/__cached__/**
+.idea/**
+.venv/**
