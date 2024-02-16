@@ -12,14 +12,16 @@ admin.site.register(TypeOfEducationalInstitution)
 admin.site.register(Partner)
 admin.site.register(ContactData)
 
-class SpecialtyInline(admin.TabularInline):
+class SubdivisionsInline(admin.TabularInline):
     model = Employee
     extra = 1
 
-class SpecialtyAdmin(admin.ModelAdmin):
-    inlines = (SpecialtyInline,)
+class SubdivisionsAdmin(admin.ModelAdmin):
+    inlines = (SubdivisionsInline,)
 
-admin.site.register(Specialty, SpecialtyAdmin)
+admin.site.register(Subdivision, SubdivisionsAdmin)
+
+admin.site.register(Specialty)
 
 admin.site.register(Employee)
 admin.site.register(MethodologicalFile)

@@ -121,10 +121,23 @@ class Partner(models.Model):
         return self.name
 
 
+class Subdivision(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
+    name = models.CharField(max_length=255, verbose_name="Название")
+
+    class Meta:
+        verbose_name = "Подразделение"
+        verbose_name_plural = "Подразделения"
+
+    def __str__(self):
+        return self.name
+
+
 class Employee(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     contact = models.ForeignKey(ContactData, on_delete=models.CASCADE, verbose_name="Контактные данные сотрудника")
-    specialty = models.ForeignKey(Specialty, on_delete=models.CASCADE, verbose_name="Специальность")
+    # specialty = models.ForeignKey(Specialty, on_delete=models.CASCADE, verbose_name="Специальность")
+    subdivision = models.ForeignKey(Subdivision, on_delete=models.CASCADE, verbose_name="Подразделение", null=True, blank=True)
     position = models.ForeignKey(Position, on_delete=models.CASCADE, verbose_name="Должность")
 
     class Meta:
@@ -267,3 +280,4 @@ class RelevantMethodologicalFile(models.Model):
 
     def __str__(self):
         return str(self.id) + '-' + self.methodological_file.name + '-' + self.event_activity.name
+
