@@ -141,8 +141,8 @@ class Subdivision(models.Model):
 
 class Employee(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    contact = models.ForeignKey(ContactData, on_delete=models.SET_NULL, verbose_name="Контактные данные сотрудника", unique=True)
-    subdivision = models.ForeignKey(Subdivision, on_delete=models.CASCADE, verbose_name="Подразделение", null=True, blank=True)
+    contact = models.OneToOneField(ContactData, on_delete=models.CASCADE, verbose_name="Контактные данные сотрудника")
+    subdivision = models.ForeignKey(Subdivision, on_delete=models.SET_NULL, verbose_name="Подразделение", null=True, blank=True)
     position = models.ForeignKey(Position, on_delete=models.CASCADE, verbose_name="Должность")
 
     class Meta:
@@ -184,10 +184,9 @@ class Group(models.Model):
 
 class Student(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    contact = models.ForeignKey(ContactData,
+    contact = models.OneToOneField(ContactData,
                                 on_delete=models.CASCADE,
-                                verbose_name="Контактные данные студента",
-                                unique=True)
+                                verbose_name="Контактные данные студента")
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name="Группа")
 
     class Meta:
