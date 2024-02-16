@@ -25,7 +25,7 @@ def add_mass_employees(request):
             last_name, first_name, middle_name = name.split(" ")
 
             if ContactData.objects.filter(last_name=last_name, first_name=first_name, middle_name=middle_name).first():
-                print(name)
+                continue
             position = Position.objects.filter(name=position.strip()).first()
 
 
