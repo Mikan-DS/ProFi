@@ -3,7 +3,7 @@ from django.db import models
 
 class AcademicYear(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    year = models.IntegerField(verbose_name="Год")
+    year = models.IntegerField(verbose_name="Год", unique=True)
 
     class Meta:
         verbose_name = "Учебный год"
@@ -15,7 +15,7 @@ class AcademicYear(models.Model):
 
 class EventStatus(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    name = models.CharField(max_length=255, verbose_name="Название статуса")
+    name = models.CharField(max_length=255, verbose_name="Название статуса", unique=True)
 
     class Meta:
         verbose_name = "Статус проведения"
@@ -27,7 +27,7 @@ class EventStatus(models.Model):
 
 class EventActivity(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    name = models.CharField(max_length=255, verbose_name="Название")
+    name = models.CharField(max_length=255, verbose_name="Название", unique=True)
 
     class Meta:
         verbose_name = "Деятельность мероприятия"
@@ -39,7 +39,7 @@ class EventActivity(models.Model):
 
 class Position(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    name = models.CharField(max_length=255, verbose_name="Название")
+    name = models.CharField(max_length=255, verbose_name="Название", unique=True)
 
     class Meta:
         verbose_name = "Должность"
@@ -51,7 +51,7 @@ class Position(models.Model):
 
 class TypeOfEducationalInstitution(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    name = models.CharField(max_length=255, verbose_name="Название")
+    name = models.CharField(max_length=255, verbose_name="Название", unique=True)
 
     class Meta:
         verbose_name = "Вид учебного заведения"
@@ -87,6 +87,8 @@ class Specialty(models.Model):
         verbose_name = "Специальность"
         verbose_name_plural = "Специальности"
 
+        unique_together = ("name", "number")
+
     def __str__(self):
         return self.name + ' (' + self.number + ')'
 
@@ -103,6 +105,8 @@ class School(models.Model):
         verbose_name = "Школа"
         verbose_name_plural = "Школы"
 
+        unique_together = ("name", "address")
+
     def __str__(self):
         return f"{self.type.name} {self.name} ({self.address})"
 
@@ -117,13 +121,15 @@ class Partner(models.Model):
         verbose_name = "Партнёр"
         verbose_name_plural = "Партнёры"
 
+        unique_together = ("contact", "name")
+
     def __str__(self):
         return self.name
 
 
 class Subdivision(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    name = models.CharField(max_length=255, verbose_name="Название")
+    name = models.CharField(max_length=255, verbose_name="Название", unique=True)
 
     class Meta:
         verbose_name = "Подразделение"
@@ -135,8 +141,7 @@ class Subdivision(models.Model):
 
 class Employee(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    contact = models.ForeignKey(ContactData, on_delete=models.CASCADE, verbose_name="Контактные данные сотрудника")
-    # specialty = models.ForeignKey(Specialty, on_delete=models.CASCADE, verbose_name="Специальность")
+    contact = models.ForeignKey(ContactData, on_delete=models.SET_NULL, verbose_name="Контактные данные сотрудника", unique=True)
     subdivision = models.ForeignKey(Subdivision, on_delete=models.CASCADE, verbose_name="Подразделение", null=True, blank=True)
     position = models.ForeignKey(Position, on_delete=models.CASCADE, verbose_name="Должность")
 
@@ -179,7 +184,10 @@ class Group(models.Model):
 
 class Student(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    contact = models.ForeignKey(ContactData, on_delete=models.CASCADE, verbose_name="Контактные данные студента")
+    contact = models.ForeignKey(ContactData,
+                                on_delete=models.CASCADE,
+                                verbose_name="Контактные данные студента",
+                                unique=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name="Группа")
 
     class Meta:
@@ -277,6 +285,7 @@ class RelevantMethodologicalFile(models.Model):
     class Meta:
         verbose_name = "Релевантный методический файл"
         verbose_name_plural = "Релевантные методические файлы"
+        unique_together = ("methodological_file", "event_activity")
 
     def __str__(self):
         return str(self.id) + '-' + self.methodological_file.name + '-' + self.event_activity.name
