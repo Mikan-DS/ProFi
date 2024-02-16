@@ -1,4 +1,4 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 
 from ProOrientation.models import Employee, ContactData, Position
 
@@ -8,6 +8,9 @@ def index(request):
 
 
 def add_mass_employees(request):
+
+    return HttpResponseForbidden("Этот путь закрыт!")
+
     qty = 0
 
     unknown = []
