@@ -1,0 +1,21 @@
+{% extends "ProOrientation/base.html" %}
+
+{% block title %}
+Главная
+{% endblock %}
+
+
+{% block content %}
+    <h1>
+        Последние мероприятия
+    </h1>
+    
+    {% for event in events %}
+<h3>
+    {{ event.name }} {{ event.date|date:"d.m.20y" }}
+</h3>
+
+    {% endfor %}
+    
+    
+{% endblock %}

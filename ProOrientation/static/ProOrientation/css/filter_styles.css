@@ -1,0 +1,17 @@
+#toggle-filter {
+    background-color: #0193F8;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-size: 26px;
+    font-weight: bold;
+    padding: 3px 10px 3px 10px;
+}
+
+#configure-filter {
+    background-color: #0193F8;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 20px;
+}

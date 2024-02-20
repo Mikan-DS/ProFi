@@ -1,10 +1,21 @@
+from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 
-from ProOrientation.models import Employee, ContactData, Position
+from ProOrientation.models import Employee, ContactData, Position, Event
 
 
 def index(request):
-    return HttpResponse('<a href="/admin">Добавлять в админке, admin-admin</a>')
+    events = Event.objects.order_by('date')[:10]
+
+    return render(request, "ProOrientation/index.html", {'events': events})
+
+def events(request):
+    events = Event.objects.all()
+
+    return render(request, "ProOrientation/filter.html", {
+        'events': events,
+        'filter_object': "Мероприятия"
+    })
 
 
 def add_mass_employees(request):

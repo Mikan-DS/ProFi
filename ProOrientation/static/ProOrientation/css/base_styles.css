@@ -1,0 +1,68 @@
+body {
+    background-color: #076ADD;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+
+#header {
+    position: relative;
+    background-color: #0193F8;
+    height: 225px;
+    width: 100%;
+}
+
+#logo {
+
+    position: relative;
+    top: 47px;
+    left: 30px;
+}
+
+#navigation{
+  position: absolute;
+  bottom: 24px;
+  right: 31px;
+}
+
+#navigation>a{
+    color: white;
+    font-family: 'Inter', sans-serif;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 26px;
+    padding-left: 20px;
+}
+
+#user-about{
+    position: absolute;
+    top: 63px;
+    right: 31px;
+    text-align: right;
+    font-size: 24px;
+}
+
+#footer {
+    position: absolute;
+    background-color: #0063B2;
+    height: 194px;
+    width: 100%;
+    bottom: 0;
+}
+
+#contacts{
+    position: absolute;
+    top: 27px;
+    left: 18px;
+}
+#company{
+    position: absolute;
+    bottom: 9px;
+    right: 34px;
+}
+
+#content{
+    padding: 20px;
+}
