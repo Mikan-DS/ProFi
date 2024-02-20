@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -144,6 +145,11 @@ class Employee(models.Model):
     contact = models.OneToOneField(ContactData, on_delete=models.CASCADE, verbose_name="Контактные данные сотрудника")
     subdivision = models.ForeignKey(Subdivision, on_delete=models.SET_NULL, verbose_name="Подразделение", null=True, blank=True)
     position = models.ForeignKey(Position, on_delete=models.CASCADE, verbose_name="Должность")
+    user = models.OneToOneField(User,
+                                on_delete=models.SET_NULL,
+                                verbose_name="Учетные данные",
+                                null=True, blank=True,
+                                related_name="employee")
 
     class Meta:
         verbose_name = "Сотрудник"
@@ -188,6 +194,12 @@ class Student(models.Model):
                                 on_delete=models.CASCADE,
                                 verbose_name="Контактные данные студента")
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name="Группа")
+
+    user = models.OneToOneField(User,
+                                on_delete=models.SET_NULL,
+                                verbose_name="Учетные данные",
+                                null=True, blank=True,
+                                related_name="student")
 
     class Meta:
         verbose_name = "Студент"
