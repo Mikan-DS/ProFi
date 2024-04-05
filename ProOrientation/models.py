@@ -78,27 +78,13 @@ class ContactData(models.Model):
         return f"{self.last_name} {self.first_name} {self.middle_name if self.middle_name else ''}".strip()
 
 
-class Specialty(models.Model):
-    id = models.AutoField(primary_key=True, verbose_name="ID")
-    head = models.ForeignKey(ContactData, on_delete=models.CASCADE, verbose_name="Контактные данные руководителя")
-    name = models.CharField(max_length=255, verbose_name="Название")
-    number = models.CharField(max_length=255, verbose_name="Номер")
-
-    class Meta:
-        verbose_name = "Специальность"
-        verbose_name_plural = "Специальности"
-
-        unique_together = ("name", "number")
-
-    def __str__(self):
-        return self.name + ' (' + self.number + ')'
-
-
 class School(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     director = models.ForeignKey(ContactData, on_delete=models.CASCADE, verbose_name="Контактные данные директора")
-    type = models.ForeignKey(TypeOfEducationalInstitution, on_delete=models.CASCADE,
-                             verbose_name="Вид учебного заведения")
+    type = models.ForeignKey(
+        TypeOfEducationalInstitution,
+        on_delete=models.CASCADE,
+        verbose_name="Вид учебного заведения")
     name = models.CharField(max_length=255, verbose_name="Название/номер школы")
     address = models.CharField(max_length=255, verbose_name="Адрес")
 
@@ -114,7 +100,11 @@ class School(models.Model):
 
 class Partner(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    contact = models.ForeignKey(ContactData, on_delete=models.CASCADE, verbose_name="Контактные данные партнёра")
+    contact = models.ForeignKey(
+        ContactData,
+        on_delete=models.CASCADE,
+        verbose_name="Контактные данные партнёра"
+    )
     name = models.CharField(max_length=255, verbose_name="Название")
     description = models.TextField(verbose_name="Описание предприятия")
 
@@ -142,14 +132,26 @@ class Subdivision(models.Model):
 
 class Employee(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    contact = models.OneToOneField(ContactData, on_delete=models.CASCADE, verbose_name="Контактные данные сотрудника")
-    subdivision = models.ForeignKey(Subdivision, on_delete=models.SET_NULL, verbose_name="Подразделение", null=True, blank=True)
-    position = models.ForeignKey(Position, on_delete=models.CASCADE, verbose_name="Должность")
-    user = models.OneToOneField(User,
-                                on_delete=models.SET_NULL,
-                                verbose_name="Учетные данные",
-                                null=True, blank=True,
-                                related_name="employee")
+    contact = models.OneToOneField(
+        ContactData,
+        on_delete=models.CASCADE,
+        verbose_name="Контактные данные сотрудника")
+    subdivision = models.ForeignKey(
+        Subdivision,
+        on_delete=models.SET_NULL,
+        verbose_name="Подразделение",
+        null=True,
+        blank=True)
+    position = models.ForeignKey(
+        Position,
+        on_delete=models.CASCADE,
+        verbose_name="Должность")
+    user = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        verbose_name="Учетные данные",
+        null=True, blank=True,
+        related_name="employee")
 
     class Meta:
         verbose_name = "Сотрудник"
@@ -157,6 +159,62 @@ class Employee(models.Model):
 
     def __str__(self):
         return f"пр. {self.contact}"
+
+
+class StudyDivision(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
+    name = models.CharField(max_length=100, verbose_name="Название")
+
+    class Meta:
+        verbose_name = "Учебное отделение"
+        verbose_name_plural = "Учебные отделения"
+
+    def __str__(self):
+        return self.name
+
+
+class StudyDivisionHead(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
+    head_id = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        verbose_name="ID руководителя",
+        related_name='study_division_heads')
+    study_division_id = models.ForeignKey(
+        StudyDivision,
+        on_delete=models.CASCADE,
+        verbose_name="ID учебного отделения",
+        related_name='study_division_heads')
+
+    class Meta:
+        verbose_name = "Руководитель отделения"
+        verbose_name_plural = "Руководители отделений"
+
+    def __str__(self):
+        return f"{self.head_id} {self.study_division_id}"
+
+
+class Specialty(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
+    head = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        verbose_name="Контактные данные руководителя",
+        related_name='specialty')
+    name = models.CharField(max_length=255, verbose_name="Название")
+    number = models.CharField(max_length=255, verbose_name="Номер")
+    study_division = models.ForeignKey(
+        StudyDivision,
+        on_delete=models.CASCADE,
+        verbose_name="Учебное отделение")
+
+    class Meta:
+        verbose_name = "Специальность"
+        verbose_name_plural = "Специальности"
+        unique_together = ("name", "number")
+
+    def __str__(self):
+        return self.name + ' (' + self.number + ')'
 
 
 class SchoolResponsible(models.Model):
@@ -190,16 +248,18 @@ class Group(models.Model):
 
 class Student(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    contact = models.OneToOneField(ContactData,
-                                on_delete=models.CASCADE,
-                                verbose_name="Контактные данные студента")
+    contact = models.OneToOneField(
+        ContactData,
+        on_delete=models.CASCADE,
+        verbose_name="Контактные данные студента")
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name="Группа")
 
-    user = models.OneToOneField(User,
-                                on_delete=models.SET_NULL,
-                                verbose_name="Учетные данные",
-                                null=True, blank=True,
-                                related_name="student")
+    user = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        verbose_name="Учетные данные",
+        null=True, blank=True,
+        related_name="student")
 
     class Meta:
         verbose_name = "Студент"
@@ -211,8 +271,14 @@ class Student(models.Model):
 
 class Event(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, verbose_name="Учебный год")
-    status = models.ForeignKey(EventStatus, on_delete=models.CASCADE, verbose_name="Статус мероприятия")
+    academic_year = models.ForeignKey(
+        AcademicYear,
+        on_delete=models.CASCADE,
+        verbose_name="Учебный год")
+    status = models.ForeignKey(
+        EventStatus,
+        on_delete=models.CASCADE,
+        verbose_name="Статус мероприятия")
     name = models.CharField(max_length=255, verbose_name="Название")
     location = models.CharField(max_length=255, verbose_name="Место проведения")
     date = models.DateTimeField(verbose_name="Дата проведения")
@@ -228,7 +294,10 @@ class Event(models.Model):
 
 class EventOrganizer(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, verbose_name="Организатор")
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        verbose_name="Организатор")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="Мероприятие")
 
     class Meta:
@@ -236,22 +305,22 @@ class EventOrganizer(models.Model):
         verbose_name_plural = "Организаторы мероприятий"
         unique_together = ('employee', 'event')
 
-
     def __str__(self):
         return str(self.id) + '-' + self.employee.contact.first_name + '-' + self.event.name
 
 
-class EventPlan(models.Model):
+class EventDetails(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    event_activity = models.ForeignKey(EventActivity, on_delete=models.CASCADE,
-                                       verbose_name="Вид деятельности мероприятия")
+    event_activity = models.ForeignKey(
+        EventActivity,
+        on_delete=models.CASCADE,
+        verbose_name="Вид деятельности мероприятия")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="Мероприятие")
 
     class Meta:
-        verbose_name = "План мероприятия"
-        verbose_name_plural = "Планы мероприятий"
+        verbose_name = "Деталь мероприятия"
+        verbose_name_plural = "Детали мероприятия"
         unique_together = ('event_activity', 'event')
-
 
     def __str__(self):
         return str(self.id) + '-' + self.event_activity.name + '-' + self.event.name
@@ -274,10 +343,18 @@ class EventParticipant(models.Model):
 
 class MethodologicalFile(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    specialty = models.ForeignKey(Specialty, on_delete=models.CASCADE, verbose_name="Специальность")
+    specialty = models.ForeignKey(
+        Specialty,
+        on_delete=models.CASCADE,
+        verbose_name="Специальность")
     name = models.CharField(max_length=255, verbose_name="Название")
     location = models.CharField(max_length=255, verbose_name="Расположение (ссылка)")
     date_added = models.DateTimeField(verbose_name="Дата добавления")
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        verbose_name="Автор (Загрузивший)",
+        related_name="methodological_files")
 
     class Meta:
         verbose_name = "Методический файл"
@@ -289,9 +366,14 @@ class MethodologicalFile(models.Model):
 
 class RelevantMethodologicalFile(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    methodological_file = models.ForeignKey(MethodologicalFile, on_delete=models.CASCADE,
-                                            verbose_name="Методический файл")
-    event_activity = models.ForeignKey(EventActivity, on_delete=models.CASCADE, verbose_name="Вид деятельности")
+    methodological_file = models.ForeignKey(
+        MethodologicalFile,
+        on_delete=models.CASCADE,
+        verbose_name="Методический файл")
+    event_activity = models.ForeignKey(
+        EventActivity,
+        on_delete=models.CASCADE,
+        verbose_name="Вид деятельности")
 
     class Meta:
         verbose_name = "Релевантный методический файл"
@@ -300,4 +382,3 @@ class RelevantMethodologicalFile(models.Model):
 
     def __str__(self):
         return str(self.id) + '-' + self.methodological_file.name + '-' + self.event_activity.name
-

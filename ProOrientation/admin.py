@@ -45,7 +45,7 @@ class EventOrganizerInline(admin.TabularInline):
     extra = 1
 
 class EventPlanInline(admin.TabularInline):
-    model = EventPlan
+    model = EventDetails
     extra = 1
 
 class EventParticipantInline(admin.TabularInline):
@@ -69,5 +69,5 @@ class GroupAdmin(admin.ModelAdmin):
     inlines = [StudentInline]
 
 admin.site.register(Group, GroupAdmin)
-admin.site.register(EventPlan)
+admin.site.register(EventDetails)
 admin.site.register(EventActivity)
