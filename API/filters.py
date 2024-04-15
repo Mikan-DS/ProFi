@@ -24,6 +24,16 @@ auto_fields_map: typing.Dict[FilterFieldType, typing.Tuple[str, str]] = {
     FilterFieldType.FOREIGN: ("OneToOneField", "ForeignKey"),
 }
 
+
+allowed_operations_for_field = [
+    (FilterFieldType.INT, ("<", ">", "<=", ">=", "=")),
+    (FilterFieldType.STR, ()),
+    (FilterFieldType.FOREIGN, ()),
+]
+
+allowed_operations_for_field.sort(key=lambda x: x[0].value)
+ALLOWED_OPERATIONS_FOR_FIELD: typing.List[str] = [i[1] for i in allowed_operations_for_field]
+
 def get_auto_field_type(type_name):
     for field_type, db_field_types in auto_fields_map.items():
         if type_name in db_field_types:
@@ -41,10 +51,10 @@ class FilterField:
     @property
     def json(self):
         return {
-            "field_verbose": self.field_verbose,
-            "field_name": self.field_name,
-            "field_type_id": self.field_type.value,
-            "field_type": self.field_type.name,
+            "verbose": self.field_verbose,
+            "name": self.field_name,
+            "type_id": self.field_type.value,
+            "type_name": self.field_type.name,
         }
 
 class Filter:
@@ -71,6 +81,7 @@ class Filter:
             "name": self.name,
             "verbose": self.model._meta.verbose_name,
             "verbose_plural": self.model._meta.verbose_name_plural,
+            "allowed_operations": ALLOWED_OPERATIONS_FOR_FIELD,
             "fields": self.fields_json
         }
 
