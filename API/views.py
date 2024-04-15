@@ -9,6 +9,13 @@ def api_response(message='Ok', code=200, **data):
 
 @csrf_exempt
 def filter(request, filterName):
+    filter_object: Filter = Filter.get_filter(filterName)
+
+    if not filter_object:
+        return api_response("Filter does not exist", 404)
+
+    filter_object.get_values()
+
     return api_response("Not implemented", 405)
 
 @csrf_exempt

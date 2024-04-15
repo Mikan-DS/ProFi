@@ -71,6 +71,15 @@ class Filter:
 
         Filter.filters_map.append(self)
 
+    def get_values(self):
+        values = []
+
+        query_values = self.model.objects.all()
+        for value in query_values:
+            print(str(value))
+
+        return values
+
     @property
     def name(self):
         return self.model.__name__
@@ -90,7 +99,7 @@ class Filter:
         return list(map(lambda x: x.json, self.fields))
 
     @classmethod
-    def get_filter(cls, name):
+    def get_filter(cls, name) -> typing.Union["Filter", None]:
         for filter in Filter.filters_map:
             if filter.name == name:
                 return filter
