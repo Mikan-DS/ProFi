@@ -4,6 +4,7 @@ from enum import Enum, auto
 from ProOrientation.models import (
     Employee,
 )
+from django.db import models
 
 
 class FilterFieldType(Enum):
@@ -16,14 +17,11 @@ class FilterFieldType(Enum):
         return cls(value).name
 
 
-
-
 auto_fields_map: typing.Dict[FilterFieldType, typing.Tuple[str, str]] = {
     FilterFieldType.INT: ("AutoField", "IntegerField"),
     FilterFieldType.STR: ("CharField", "EmailField"),
     FilterFieldType.FOREIGN: ("OneToOneField", "ForeignKey"),
 }
-
 
 allowed_operations_for_field = [
     (FilterFieldType.INT, ("<", ">", "<=", ">=", "=")),
@@ -32,7 +30,8 @@ allowed_operations_for_field = [
 ]
 
 allowed_operations_for_field.sort(key=lambda x: x[0].value)
-ALLOWED_OPERATIONS_FOR_FIELD: typing.List[str] = [i[1] for i in allowed_operations_for_field]
+ALLOWED_OPERATIONS_FOR_FIELD = [i[1] for i in allowed_operations_for_field]
+
 
 def get_auto_field_type(type_name):
     for field_type, db_field_types in auto_fields_map.items():
@@ -41,26 +40,29 @@ def get_auto_field_type(type_name):
     return None
 
 
-
 class FilterField:
     def __init__(self, field_verbose, field_name, field_type):
-        self.field_verbose = field_verbose
-        self.field_name = field_name
+        self.verbose = field_verbose
+        self.name = field_name
         self.field_type: FilterFieldType = field_type
 
     @property
     def json(self):
         return {
-            "verbose": self.field_verbose,
-            "name": self.field_name,
+            "verbose": self.verbose,
+            "name": self.name,
             "type_id": self.field_type.value,
             "type_name": self.field_type.name,
         }
 
+
 class Filter:
     filters_map = []
+
     def __init__(self, model):
-        self.model = model
+        self.model: models.Model = model
+
+
 
         self.fields = []
 
@@ -71,12 +73,18 @@ class Filter:
 
         Filter.filters_map.append(self)
 
-    def get_values(self):
+    def get_values(self, ignoreColumns=None, **kwargs):
+        if ignoreColumns is None:
+            ignoreColumns = ()
         values = []
 
-        query_values = self.model.objects.all()
+        query_values: models.QuerySet = self.model.objects.all()
         for value in query_values:
-            print(str(value))
+            values.append(
+                {
+                    i.name: 2 for i in self.fields if not i.name in ignoreColumns
+                }
+            )
 
         return values
 
