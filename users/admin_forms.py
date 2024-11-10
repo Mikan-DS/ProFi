@@ -9,10 +9,10 @@ from users.models import User
 class UserCreationForm(DefaultUserCreationForm):
     class Meta:
         model = User
-        fields = ("email",)
+        fields = ()
 
 
 class UserChangeForm(DefaultUserChangeForm):
     class Meta:
         model = User
-        fields = ("email",)
+        fields = ()

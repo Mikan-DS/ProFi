@@ -2,30 +2,35 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from users.admin_forms import UserCreationForm, UserChangeForm
-from users.models import User
-
+from users.models import User, ContactData
 
 
 class CustomUserAdmin(UserAdmin):
     add_form = UserCreationForm
     form = UserChangeForm
     model = User
-    list_display = ("username", "email", "is_staff",)
-    list_filter = ("username", "email", "is_staff",)
+    list_display = ("username", "is_staff",)
+    list_filter = ("username", "is_staff",)
     fieldsets = (
-        (None, {"fields": ("username", "first_name", "last_name", "email", "password")}),
+        (None, {"fields": ("username", "password",)}),
         ("Разрешения", {"fields": ("is_staff", "is_active", "groups", "user_permissions")}),
     )
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
             "fields": (
-                "username", "email", "password1", "password2", "is_staff"
+                "username", "password1", "password2", "is_staff"
             )}
          ),
     )
-    search_fields = ("email", "username", "email")
+    search_fields = ("username", )
     ordering = ("id",)
 
 
 admin.site.register(User, CustomUserAdmin)
+
+
+@admin.register(ContactData)
+class ContactDataAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'middle_name', 'phone', 'email')
+    search_fields = ('first_name', 'last_name', 'middle_name', 'phone', 'email')
