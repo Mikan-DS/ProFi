@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from .models import Survey, SurveyQuestionPairType, SurveyScoreVariable
+from .models import Survey, SurveyQuestionPairType, SurveyScoreVariable, Profession
 
 
 def surveys_list(request):
@@ -42,6 +42,20 @@ def get_survey(request, survey_id):
         'questionType': 'pair',
         'questions': questions,
         'scoreVariables': score_variable_list
+    }
+
+    return JsonResponse(response_data)
+
+def professions_by_score_variable(request, score_variable_name):
+    # Получаем SurveyScoreVariable по имени
+    score_variable = get_object_or_404(SurveyScoreVariable, name=score_variable_name)
+
+    # Получаем профессии, связанные с этой переменной
+    professions = Profession.objects.filter(testresultprofession__survey_score_variable=score_variable)
+
+    # Формируем ответ
+    response_data = {
+        "professions": [{"id": profession.id, "name": profession.name} for profession in professions]
     }
 
     return JsonResponse(response_data)
