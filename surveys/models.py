@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Survey(models.Model):
-    title = models.CharField(max_length=70)
+    title = models.CharField(max_length=70, unique=True)
 
 
 class SurveyScoreVariable(models.Model):
@@ -48,16 +48,6 @@ class TestResultProfession(models.Model):
         related_name='professionSurveyScoreVariable'
     )
 
-
-# class SurveyQuestionTrinary(models.Model):
-#     survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
-#
-#     question = models.CharField(max_length=256)
-#
-#     yesScoreVariable = models.ForeignKey(SurveyScoreVariable, on_delete=models.CASCADE, null=True, blank=True)
-#     noScoreVariable = models.ForeignKey(SurveyScoreVariable, on_delete=models.CASCADE, null=True, blank=True)
-#     noneScoreVariable = models.ForeignKey(SurveyScoreVariable, on_delete=models.CASCADE, null=True, blank=True)
-#
 
 
 
