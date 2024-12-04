@@ -20,8 +20,8 @@ class SurveyAdmin(admin.ModelAdmin):
 
 @admin.register(SurveyScoreVariable)
 class SurveyScoreVariableAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'result_title')
-    search_fields = ('name', 'result_title')
+    list_display = ('name', 'title')
+    search_fields = ('name', 'title')
 
 
 @admin.register(SurveyQuestionPairTypeStatement)

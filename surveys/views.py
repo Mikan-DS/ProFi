@@ -1,7 +1,7 @@
-
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import Survey, SurveyQuestionPairType, SurveyScoreVariable
+
 
 def surveys_list(request):
     surveys = []
@@ -12,42 +12,29 @@ def surveys_list(request):
         })
     return JsonResponse({"surveys": surveys})
 
+
 def get_survey(request, survey_id):
     survey = get_object_or_404(Survey, id=survey_id)
 
     question_pairs = SurveyQuestionPairType.objects.filter(survey=survey)
 
+    score_variables = set()
     # Формируем список вопросов
     questions = []
     for pair in question_pairs:
-        questions.append({
-            'statementA': {
-                'statement': pair.statementA.statement,
-                'variable': {
-                    'name': pair.statementA.scoreVariable.name if pair.statementA.scoreVariable else None,
-                    'description': pair.statementA.scoreVariable.description if pair.statementA.scoreVariable else None,
-                    'title': pair.statementA.scoreVariable.result_title if pair.statementA.scoreVariable else None,
-                }
-            },
-            'statementB': {
-                'statement': pair.statementB.statement,
-                'variable': {
-                    'name': pair.statementB.scoreVariable.name if pair.statementB.scoreVariable else None,
-                    'description': pair.statementB.scoreVariable.description if pair.statementB.scoreVariable else None,
-                    'title': pair.statementB.scoreVariable.result_title if pair.statementB.scoreVariable else None,
-                }
-            }
-        })
+        score_variables.add(
+            pair.statementA.scoreVariable
+        )
+        score_variables.add(
+            pair.statementB.scoreVariable
+        )
+        questions.append(pair.as_dict)
 
     # Получаем все переменные оценок для данного опроса
-    score_variables = SurveyScoreVariable.objects.all()
     score_variable_list = []
     for variable in score_variables:
-        score_variable_list.append({
-            'name': variable.name,
-            'description': variable.description,
-            'title': variable.result_title,
-        })
+        if variable:
+            score_variable_list.append(variable.as_dict)
 
     # Формируем итоговый JSON
     response_data = {

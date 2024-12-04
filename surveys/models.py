@@ -1,54 +1,150 @@
 from django.db import models
+from typing import Dict, Optional
 
 
 class Survey(models.Model):
-    title = models.CharField(max_length=70, unique=True)
+    """Модель для опроса."""
+
+    title: str = models.CharField(max_length=70, unique=True, verbose_name="Название опроса")
+
+    def __str__(self) -> str:
+        return self.title
 
 
 class SurveyScoreVariable(models.Model):
-    name = models.CharField(max_length=30, unique=True)
+    """Модель для параметра оценки опроса."""
 
-    result_title = models.CharField(max_length=70)
-    description = models.TextField()
+    name: str = models.CharField(max_length=30, unique=True, verbose_name="Имя параметра")
+    title: str = models.CharField(max_length=70, verbose_name="Заголовок при результате")
+    description: Optional[str] = models.TextField(blank=True, null=True, verbose_name="Описание при результате")
+
+    @property
+    def as_dict(self) -> Dict[str, Optional[str]]:
+        """Возвращает словарь с данными переменной оценки."""
+        return {
+            "name": self.name,
+            "title": self.title,
+            "description": self.description
+        }
+
+    def __str__(self) -> str:
+        return f"{self.name} - {self.title}"
 
 
 class SurveyQuestionPairTypeStatement(models.Model):
-    statement = models.CharField(max_length=256)
-    scoreVariable = models.ForeignKey(SurveyScoreVariable, on_delete=models.CASCADE, null=True, blank=True)
+    """Модель для вопроса в виде пары утверждений."""
+
+    statement: str = models.CharField(max_length=256, verbose_name="Утверждение")
+    scoreVariable: Optional[SurveyScoreVariable] = models.ForeignKey(
+        SurveyScoreVariable,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Параметр оценки"
+    )
+
+    @property
+    def as_dict(self) -> Dict[str, Optional[str]]:
+        """Возвращает словарь с данными утверждения."""
+        return {
+            "statement": self.statement,
+            "variable": self.scoreVariable.name if self.scoreVariable else None
+        }
+
+    def __str__(self) -> str:
+        return self.statement
 
 
 class SurveyQuestionPairType(models.Model):
-    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+    """Модель для пары вопросов опроса."""
 
-    statementA = models.ForeignKey(SurveyQuestionPairTypeStatement, on_delete=models.CASCADE, related_name='statementsA')
-    statementB = models.ForeignKey(SurveyQuestionPairTypeStatement, on_delete=models.CASCADE, related_name='statementsB')
+    survey: Survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name="Опрос")
+
+    statementA: SurveyQuestionPairTypeStatement = models.OneToOneField(
+        SurveyQuestionPairTypeStatement,
+        on_delete=models.CASCADE,
+        related_name='statementA',
+        verbose_name="Утверждение A"
+    )
+    statementB: SurveyQuestionPairTypeStatement = models.OneToOneField(
+        SurveyQuestionPairTypeStatement,
+        on_delete=models.CASCADE,
+        related_name='statementB',
+        verbose_name="Утверждение B"
+    )
+
+    @property
+    def as_dict(self) -> Dict[str, Dict[str, Optional[str]]]:
+        """Возвращает словарь с данными пары утверждений."""
+        return {
+            "statementA": self.statementA.as_dict,
+            "statementB": self.statementB.as_dict,
+        }
+
+    def __str__(self) -> str:
+        return f"{self.statementA} - {self.statementB}"
 
 
 class EducationalInstitution(models.Model):
-    name = models.CharField(max_length=256)
+    """Модель для образовательного учреждения."""
+
+    name: str = models.CharField(max_length=256, verbose_name="Название учреждения")
+
+    def __str__(self) -> str:
+        return self.name
+
 
 class Profession(models.Model):
-    name = models.CharField(max_length=256)
-    description = models.TextField()
+    """Модель для профессии."""
+
+    name: str = models.CharField(max_length=256, verbose_name="Название профессии")
+    description: str = models.TextField(verbose_name="Описание профессии в формате Markdown", blank=True, null=True)
+
+    def __str__(self) -> str:
+        return self.name
+
 
 class Specialty(models.Model):
-    institution = models.ForeignKey(EducationalInstitution, on_delete=models.CASCADE)
-    name = models.CharField(max_length=256)
-    link = models.URLField(max_length=256, blank=True, null=True)
+    """Модель для специальности."""
+
+    institution: EducationalInstitution = models.ForeignKey(
+        EducationalInstitution,
+        on_delete=models.CASCADE,
+        verbose_name="Учебное заведение"
+    )
+    name: str = models.CharField(max_length=256, verbose_name="Название специальности")
+    link: Optional[str] = models.URLField(max_length=256, blank=True, null=True, verbose_name="Ссылка на официальный сайт")
+
+    def __str__(self) -> str:
+        return f'{self.name} - {self.institution}'
+
 
 class ProfessionSpecialty(models.Model):
-    profession = models.ForeignKey(Profession, on_delete=models.CASCADE)
-    specialty = models.ForeignKey(Specialty, on_delete=models.CASCADE)
+    """Модель для связи между профессией и специальностью."""
+
+    profession: Profession = models.ForeignKey(Profession, on_delete=models.CASCADE, verbose_name="Профессия")
+    specialty: Specialty = models.ForeignKey(Specialty, on_delete=models.CASCADE, verbose_name="Специальность")
+
+    class Meta:
+        unique_together = (("profession", "specialty"), )
+
+    def __str__(self) -> str:
+        return f"{self.profession} - {self.specialty}"
+
 
 class TestResultProfession(models.Model):
-    profession = models.ForeignKey(Profession, on_delete=models.CASCADE)
-    survey_score_variable = models.ForeignKey(
+    """Модель для соотношения результатов (параметров) к профессиям."""
+
+    profession: Profession = models.ForeignKey(Profession, on_delete=models.CASCADE, verbose_name="Профессия")
+    survey_score_variable: SurveyScoreVariable = models.ForeignKey(
         SurveyScoreVariable,
         on_delete=models.CASCADE,
-        related_name='professionSurveyScoreVariable'
+        related_name='professionSurveyScoreVariable',
+        verbose_name="Параметр оценки опроса"
     )
 
+    class Meta:
+        unique_together = (('profession', 'survey_score_variable'),)
 
-
-
-
+    def __str__(self) -> str:
+        return f"{self.profession} - {self.survey_score_variable}"
