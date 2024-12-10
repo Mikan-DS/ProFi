@@ -1,5 +1,5 @@
 from django.db import models
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 
 class Survey(models.Model):
@@ -20,9 +20,10 @@ class SurveyScoreVariable(models.Model):
     """
     Модель для параметра оценки опроса.
     """
-    name: str = models.CharField(max_length=30, unique=True, verbose_name="Имя параметра")
+    name: str = models.CharField(max_length=30, verbose_name="Имя параметра")
     title: str = models.CharField(max_length=70, verbose_name="Заголовок при результате")
     description: Optional[str] = models.TextField(blank=True, null=True, verbose_name="Описание при результате")
+    survey: Survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name="Тестирование")
 
     @property
     def as_dict(self) -> Dict[str, Optional[str]]:
@@ -38,6 +39,8 @@ class SurveyScoreVariable(models.Model):
     class Meta:
         verbose_name = "Переменная оценки"
         verbose_name_plural = "Переменные оценки"
+
+        unique_together = (("survey", "name"),)
 
     def __str__(self) -> str:
         return f"{self.name} - {self.title}"
@@ -111,6 +114,39 @@ class SurveyQuestionPairType(models.Model):
     def __str__(self) -> str:
         return f"{self.statementA.statement} - {self.statementB.statement}"
 
+
+class SurveyQuestionPlusType(models.Model):
+    """
+    Модель для вопроса в виде плюса.
+    """
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name="Опрос")
+
+    question: str = models.CharField(max_length=256, verbose_name="Вопрос")
+
+    scoreVariable: Optional[SurveyScoreVariable] = models.ForeignKey(
+        SurveyScoreVariable,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Параметр оценки"
+    )
+
+    @property
+    def as_dict(self) -> Dict[str, Union[str, None]]:
+        """
+        Возвращает словарь с данными пары утверждений.
+        """
+        return {
+            "question": self.question,
+            "variable": self.scoreVariable.name if self.scoreVariable else None
+        }
+
+    class Meta:
+        verbose_name = "Вопрос на согласие"
+        verbose_name_plural = "Вопросы на согласия"
+
+    def __str__(self) -> str:
+        return f"{self.question}"
 
 class EducationalInstitution(models.Model):
     """
